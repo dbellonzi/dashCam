@@ -14,7 +14,6 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var accLabel: UILabel!
     @IBOutlet weak var coordLabel: UILabel!
-
     
     // CoreMotion
     var motionManager = CMMotionManager()
@@ -26,6 +25,9 @@ class ViewController: UIViewController {
     var previewLayer: AVCaptureVideoPreviewLayer?
     var movieOutput = AVCaptureMovieFileOutput()
 	
+	var videoOutput: AVCapturePhotoOutput?
+	var cameraPreview: AVCaptureVideoPreviewLayer?
+	
 	// Data
 	var plotA: [Double] = [0, 0, 0]
 	var plotB: [Double] = [0, 0, 0]
@@ -36,7 +38,11 @@ class ViewController: UIViewController {
         
         if motionManager.isAccelerometerAvailable {
             startAccelerometers()
-//            startReadingMotionData()
+			setupSession()
+			setupCamera()
+			setupIO()
+			setupPreview()
+			startRunningSession()
         } else {
             print("ERROR")
         }
@@ -52,6 +58,43 @@ class ViewController: UIViewController {
             sender.setTitle("Stop", for: .normal)
         }
     }
+	
+	func setupSession() {
+		session.sessionPreset = AVCaptureSession.Preset.hd1280x720
+	}
+	
+	func setupCamera() {
+		let deviceDiscoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [AVCaptureDevice.DeviceType.builtInWideAngleCamera], mediaType: AVMediaType.video, position: AVCaptureDevice.Position.unspecified)
+		let devices = deviceDiscoverySession.devices
+		
+		for device in devices{
+			if device.position == AVCaptureDevice.Position.back{
+				captureDevice = device
+			}
+		}
+	}
+	
+	func setupIO () {
+		do {
+			let captureDeviceInput = try AVCaptureDeviceInput(device: captureDevice!)
+			session.addInput(captureDeviceInput)
+			videoOutput?.setPreparedPhotoSettingsArray([AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])], completionHandler: nil)
+		} catch {
+			print(error)
+		}
+	}
+	
+	func setupPreview() {
+		cameraPreview = AVCaptureVideoPreviewLayer(session: session)
+		cameraPreview?.videoGravity = AVLayerVideoGravity.resizeAspectFill
+		cameraPreview?.connection?.videoOrientation = AVCaptureVideoOrientation.landscapeRight
+		cameraPreview?.frame = self.view.frame
+		self.view.layer.insertSublayer(cameraPreview!, at: 0)
+	}
+	
+	func startRunningSession() {
+		session.startRunning()
+	}
     
     func startAccelerometers() {
         // Make sure the accelerometer hardware is available.

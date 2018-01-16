@@ -6,6 +6,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -65,7 +66,7 @@
                                 </userDefinedRuntimeAttributes>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Tkt-Mx-yOF">
-                                <rect key="frame" x="10" y="140" width="120" height="120"/>
+                                <rect key="frame" x="15" y="145" width="120" height="120"/>
                                 <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="120" id="VUB-K7-Mlk"/>
@@ -83,11 +84,11 @@
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
+                            <constraint firstItem="Tkt-Mx-yOF" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="topMargin" constant="145" id="BO3-aU-bFE"/>
                             <constraint firstItem="SbM-0o-KTD" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="KIG-83-9lO"/>
                             <constraint firstItem="4FU-FQ-cyn" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="30" id="T3s-8Z-rJx"/>
-                            <constraint firstItem="Tkt-Mx-yOF" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" constant="140" id="ThO-bp-0l1"/>
+                            <constraint firstItem="Tkt-Mx-yOF" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="15" id="YwQ-Zh-Nzr"/>
                             <constraint firstItem="4FU-FQ-cyn" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="30" id="kH2-Dr-fUg"/>
-                            <constraint firstItem="Tkt-Mx-yOF" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="10" id="lyS-Tq-ax7"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="SbM-0o-KTD" secondAttribute="trailing" constant="30" id="xEb-fv-1Ol"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>

@@ -41,5 +41,7 @@
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>Allows you to record crash footage</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Allows footage to be saved</string>
 </dict>
 </plist>

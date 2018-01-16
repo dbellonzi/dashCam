@@ -9,8 +9,9 @@
 import UIKit
 import CoreMotion
 import AVFoundation
+import CoreMedia
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
     
     @IBOutlet weak var accLabel: UILabel!
     @IBOutlet weak var coordLabel: UILabel!
@@ -25,8 +26,10 @@ class ViewController: UIViewController {
     var previewLayer: AVCaptureVideoPreviewLayer?
     var movieOutput = AVCaptureMovieFileOutput()
 	
+	var outputFileLocation: URL?
 	var videoOutput: AVCapturePhotoOutput?
 	var cameraPreview: AVCaptureVideoPreviewLayer?
+	var vidNum = 0
 	
 	// Data
 	var plotA: [Double] = [0, 0, 0]
@@ -51,13 +54,35 @@ class ViewController: UIViewController {
     @IBAction func toggleRec(_ sender: UIButton) {
         
         if self.movieOutput.isRecording {
-//            self.movieOutput.stopRecording()
+            self.movieOutput.stopRecording()
             sender.setTitle("Rec", for: .normal)
         } else {
-//            self.movieOutput.connection(with: video)?.videoOrientation = self.videoOrientation
-            sender.setTitle("Stop", for: .normal)
+
+			self.movieOutput.connection(with: AVMediaType.video)?.videoOrientation = AVCaptureVideoOrientation.landscapeRight
+			self.movieOutput.maxRecordedDuration = self.maxRecordedDuration()
+			self.movieOutput.startRecording(to: URL(fileURLWithPath:self.videoFileLocation()), recordingDelegate: self)
+			sender.setTitle("Stop", for: .normal)
         }
     }
+	
+	func videoFileLocation() -> String {
+		vidNum += 1
+		print("Wrote file location")
+		return NSTemporaryDirectory().appending("videoFile\(vidNum).mov")
+
+	}
+	
+	func maxRecordedDuration() -> CMTime {
+		let seconds: Int64 = 120
+		let preferredTimeScale: Int32 = 1
+		return CMTimeMake(seconds, preferredTimeScale)
+	}
+	
+	func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: Error?) {
+		print("Finished Recording \(outputFileURL)")
+
+		self.outputFileLocation = outputFileURL
+	}
 	
 	func setupSession() {
 		session.sessionPreset = AVCaptureSession.Preset.hd1280x720
@@ -78,6 +103,8 @@ class ViewController: UIViewController {
 		do {
 			let captureDeviceInput = try AVCaptureDeviceInput(device: captureDevice!)
 			session.addInput(captureDeviceInput)
+			self.session.addOutput(movieOutput)
+//			movieOutput.startRecording(to: <#T##URL#>, recordingDelegate: <#T##AVCaptureFileOutputRecordingDelegate#>)
 			videoOutput?.setPreparedPhotoSettingsArray([AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])], completionHandler: nil)
 		} catch {
 			print(error)
@@ -118,12 +145,9 @@ class ViewController: UIViewController {
 							self.check = true
 						}
 						if self.plotB != [0.0,0.0,0.0] {
-							print(self.plotA, self.plotB)
 							let pass = self.accel(x: (self.plotA[0]-self.plotB[0]), y: (self.plotA[1]-self.plotB[1]), z: (self.plotA[2]-self.plotB[2]))
 							if pass > 1 {
 								self.view.backgroundColor = UIColor.red
-//								self.makeVideo()
-								print("Dead")
 							} else {
 								self.view.backgroundColor = UIColor.green
 							}

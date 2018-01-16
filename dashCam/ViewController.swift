@@ -14,7 +14,7 @@ import CoreMedia
 class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
     
     @IBOutlet weak var accLabel: UILabel!
-    @IBOutlet weak var coordLabel: UILabel!
+    @IBOutlet weak var gForceTrack: UILabel!
     
     // CoreMotion
     var motionManager = CMMotionManager()
@@ -58,7 +58,7 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
             sender.setTitle("Rec", for: .normal)
         } else {
 
-			self.movieOutput.connection(with: AVMediaType.video)?.videoOrientation = AVCaptureVideoOrientation.landscapeRight
+			self.movieOutput.connection(with: AVMediaType.video)?.videoOrientation = AVCaptureVideoOrientation.landscapeLeft
 			self.movieOutput.maxRecordedDuration = self.maxRecordedDuration()
 			self.movieOutput.startRecording(to: URL(fileURLWithPath:self.videoFileLocation()), recordingDelegate: self)
 			sender.setTitle("Stop", for: .normal)
@@ -104,7 +104,6 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
 			let captureDeviceInput = try AVCaptureDeviceInput(device: captureDevice!)
 			session.addInput(captureDeviceInput)
 			self.session.addOutput(movieOutput)
-//			movieOutput.startRecording(to: <#T##URL#>, recordingDelegate: <#T##AVCaptureFileOutputRecordingDelegate#>)
 			videoOutput?.setPreparedPhotoSettingsArray([AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])], completionHandler: nil)
 		} catch {
 			print(error)
@@ -114,7 +113,7 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
 	func setupPreview() {
 		cameraPreview = AVCaptureVideoPreviewLayer(session: session)
 		cameraPreview?.videoGravity = AVLayerVideoGravity.resizeAspectFill
-		cameraPreview?.connection?.videoOrientation = AVCaptureVideoOrientation.landscapeRight
+		cameraPreview?.connection?.videoOrientation = AVCaptureVideoOrientation.landscapeLeft
 		cameraPreview?.frame = self.view.frame
 		self.view.layer.insertSublayer(cameraPreview!, at: 0)
 	}
@@ -137,6 +136,9 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
                         let x = data.acceleration.x
                         let y = data.acceleration.y
                         let z = data.acceleration.z
+                        self.gForceTrack.translatesAutoresizingMaskIntoConstraints = true
+                        self.gForceTrack.frame.origin.x = CGFloat((y*50)+70)
+                        self.gForceTrack.frame.origin.y = CGFloat((z*50)+200)
 						if self.check {
 							self.plotA = [x,y,z]
 							self.check = false
@@ -146,10 +148,9 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
 						}
 						if self.plotB != [0.0,0.0,0.0] {
 							let pass = self.accel(x: (self.plotA[0]-self.plotB[0]), y: (self.plotA[1]-self.plotB[1]), z: (self.plotA[2]-self.plotB[2]))
-							if pass > 1 {
-								self.view.backgroundColor = UIColor.red
-							} else {
-								self.view.backgroundColor = UIColor.green
+							if pass > 1  && self.movieOutput.isRecording {
+								self.movieOutput.stopRecording()
+								self.movieOutput.startRecording(to: URL(fileURLWithPath:self.videoFileLocation()), recordingDelegate: self)
 							}
 						}
 					}
@@ -165,7 +166,6 @@ class ViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
     func accel(x: Double, y: Double, z:Double) -> Double {
         var acc = sqrt((y*y)+(x*x)+(z*z))
         acc = Double(Int(acc*1000))/1000
-        coordLabel.text = "x: \(x) y: \(y) z:\(z)"
         accLabel.text = "acc:\(acc)"
         return acc
     }
